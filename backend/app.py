@@ -29,12 +29,30 @@ def improve_email():
     # Select system prompt based on improvement level
     system_prompts = {
         'standard': """You are an email editor. Improve this email by fixing grammar, 
-                     enhancing clarity, and ensuring a professional tone. Maintain the 
-                     original meaning, intent and language of the message.""",
+                    enhancing clarity, and ensuring a professional tone. 
+                    IMPORTANT: Maintain the original language of the email - if it's in French, 
+                    respond in French, if it's in English, respond in English, etc.
+                    Maintain the original meaning, intent and style of the message.""",
+
+        'professional': """You are an executive communication specialist. Enhance this email to be clear, concise, and impactful for a business environment. 
+                    
+                    Make these specific improvements:
+                    1. Use professional vocabulary and tone appropriate for business correspondence
+                    2. Structure content logically with clear paragraphs and transitions
+                    3. Focus on clarity and brevity - remove unnecessary words and redundancies
+                    4. Ensure appropriate level of formality based on context
+                    5. Maintain proper business etiquette and courteous language
+                    6. Keep actionable items and requests clear and specific
+                    7. Fix any grammatical or spelling errors
+                    
+                    IMPORTANT: Preserve the original language of the email - if it's in French, respond in French, if it's in English, respond in English, etc.
+                    Maintain the original intent, key information, and any specific terminology used.""",
         
         'casual': """You are a friendly writing assistant. Make this email warm and 
-                  conversational while keeping it professional. Improve clarity and 
-                  fix any errors while maintaining a personable tone and the original language."""
+                conversational while keeping it professional. Improve clarity and 
+                fix any errors while maintaining a personable tone.
+                IMPORTANT: Always preserve the original language of the email - if it's in French, 
+                your improvements must be in French, if it's in English, respond in English, etc."""
     }
     
     system_prompt = system_prompts.get(improvement_level, system_prompts['standard'])
