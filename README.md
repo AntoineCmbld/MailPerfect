@@ -1,4 +1,4 @@
-# Gmail Email Improver Chrome Extension
+# MailPerfect: Gmail Email Improver Chrome Extension
 
 This Chrome extension adds an "Improve Mail" button to Gmail's compose window, allowing you to instantly improve the quality, clarity, and professionalism of your emails using AI.
 
