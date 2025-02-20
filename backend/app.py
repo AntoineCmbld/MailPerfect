@@ -30,16 +30,11 @@ def improve_email():
     system_prompts = {
         'standard': """You are an email editor. Improve this email by fixing grammar, 
                      enhancing clarity, and ensuring a professional tone. Maintain the 
-                     original meaning and intent of the message.""",
-        
-        'professional': """You are a professional business writing expert. Transform 
-                        this email into a clear, concise, and highly professional message.
-                        Use appropriate business language, ensure perfect grammar, and 
-                        optimize structure for maximum impact. Do not press.""",
+                     original meaning, intent and language of the message.""",
         
         'casual': """You are a friendly writing assistant. Make this email warm and 
                   conversational while keeping it professional. Improve clarity and 
-                  fix any errors while maintaining a personable tone."""
+                  fix any errors while maintaining a personable tone and the original language."""
     }
     
     system_prompt = system_prompts.get(improvement_level, system_prompts['standard'])
