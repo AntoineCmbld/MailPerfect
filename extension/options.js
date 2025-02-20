@@ -1,4 +1,3 @@
-// options.js
 document.addEventListener('DOMContentLoaded', () => {
   // Show/hide custom prompt based on selection
   const improvementLevelSelect = document.getElementById('improvementLevel');
