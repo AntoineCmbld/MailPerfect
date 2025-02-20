@@ -1,0 +1,143 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gmail Email Improver</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      width: 300px;
+      padding: 16px;
+      color: #202124;
+    }
+    
+    h1 {
+      color: #1a73e8;
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    input[type="text"], select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    button {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #0d62c7;
+    }
+    
+    button.secondary {
+      background-color: transparent;
+      color: #1a73e8;
+      border: 1px solid #1a73e8;
+    }
+    
+    button.secondary:hover {
+      background-color: rgba(26, 115, 232, 0.04);
+    }
+    
+    .status-message {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      display: none;
+    }
+    
+    .status-message.success {
+      background-color: #e6f4ea;
+      color: #0f9d58;
+      display: block;
+    }
+    
+    .status-message.error {
+      background-color: #fce8e6;
+      color: #d93025;
+      display: block;
+    }
+    
+    hr {
+      border: none;
+      border-top: 1px solid #dadce0;
+      margin: 16px 0;
+    }
+    
+    .footer {
+      display: flex;
+      justify-content: center;
+      font-size: 12px;
+      color: #5f6368;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gmail Email Improver</h1>
+  
+  <div class="form-group">
+    <label for="apiKey">OpenAI API Key</label>
+    <input type="text" id="apiKey" placeholder="Enter your API key">
+  </div>
+  
+  <div class="form-group">
+    <label for="improvementLevel">Improvement Style</label>
+    <select id="improvementLevel">
+      <option value="standard">Standard</option>
+      <option value="professional">Professional</option>
+      <option value="casual">Casual</option>
+    </select>
+  </div>
+  
+  <div class="button-container">
+    <button id="saveButton">Save Settings</button>
+    <button id="advancedButton" class="secondary">Advanced...</button>
+  </div>
+  
+  <div id="statusMessage" class="status-message"></div>
+  
+  <hr>
+  
+  <div class="footer">
+    <p>Email Improver v1.0</p>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

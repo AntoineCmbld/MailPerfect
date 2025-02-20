@@ -1,22 +1,41 @@
+<!-- options.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gmail Email Improver Settings</title>
+  <title>MailPerfect - Advanced Settings</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 40px 20px;
       color: #202124;
+      line-height: 1.5;
     }
     
     h1 {
       color: #1a73e8;
-      font-size: 24px;
+      font-size: 28px;
       margin-bottom: 24px;
+      font-weight: 400;
+    }
+    
+    h2 {
+      color: #202124;
+      font-size: 18px;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     }
     
     .form-group {
@@ -29,17 +48,74 @@
       font-weight: 500;
     }
     
-    input[type="text"], select {
+    input[type="text"], input[type="url"], select, textarea {
       width: 100%;
-      padding: 8px 12px;
+      padding: 10px 12px;
       border: 1px solid #dadce0;
       border-radius: 4px;
       font-size: 14px;
+      box-sizing: border-box;
     }
     
-    input[type="text"]:focus, select:focus {
+    textarea {
+      min-height: 120px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    input[type="text"]:focus, input[type="url"]:focus, select:focus, textarea:focus {
       outline: none;
       border-color: #1a73e8;
+    }
+    
+    .toggle-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+      margin-right: 10px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #1a73e8;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(20px);
     }
     
     button {
@@ -47,9 +123,10 @@
       color: white;
       border: none;
       border-radius: 4px;
-      padding: 10px 16px;
+      padding: 10px 24px;
       font-size: 14px;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
     
     button:hover {
@@ -58,7 +135,7 @@
     
     .status-message {
       margin-top: 16px;
-      padding: 10px;
+      padding: 12px;
       border-radius: 4px;
       display: none;
     }
@@ -74,28 +151,94 @@
       color: #d93025;
       display: block;
     }
+    
+    .help-text {
+      font-size: 13px;
+      color: #5f6368;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
-  <h1>Gmail Email Improver Settings</h1>
+  <h1>Gmail Email Improver - Advanced Settings</h1>
   
-  <div class="form-group">
-    <label for="apiKey">API Key</label>
-    <input type="text" id="apiKey" placeholder="Enter your API key">
-    <small>Get your API key from your OpenAI account.</small>
+  <div class="card">
+    <h2>API Configuration</h2>
+    
+    <div class="form-group">
+      <label for="apiKey">OpenAI API Key</label>
+      <input type="text" id="apiKey" placeholder="Enter your OpenAI API key">
+      <p class="help-text">Your API key is stored locally and only sent directly to OpenAI</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="backendUrl">Backend URL</label>
+      <input type="url" id="backendUrl" placeholder="http://localhost:5000/improve-email">
+      <p class="help-text">URL of your local or remote backend service</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="model">AI Model</label>
+      <select id="model">
+        <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster)</option>
+        <option value="gpt-4">GPT-4 (Higher Quality)</option>
+      </select>
+    </div>
   </div>
   
-  <div class="form-group">
-    <label for="improvementLevel">Improvement Style</label>
-    <select id="improvementLevel">
-      <option value="standard">Standard</option>
-      <option value="professional">Professional</option>
-      <option value="casual">Casual</option>
-    </select>
+  <div class="card">
+    <h2>Email Improvement Settings</h2>
+    
+    <div class="form-group">
+      <label for="improvementLevel">Improvement Style</label>
+      <select id="improvementLevel">
+        <option value="standard">Standard - Balanced improvements</option>
+        <option value="professional">Professional - Formal business language</option>
+        <option value="casual">Casual - Friendly and conversational</option>
+        <option value="custom">Custom - Use custom prompt</option>
+      </select>
+    </div>
+    
+    <div class="form-group" id="customPromptContainer" style="display: none;">
+      <label for="customPrompt">Custom Improvement Prompt</label>
+      <textarea id="customPrompt" placeholder="You are an email assistant. Improve this email by..."></textarea>
+      <p class="help-text">Define exactly how you want emails to be improved</p>
+    </div>
+    
+    <div class="form-group">
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input type="checkbox" id="preserveFormatting">
+          <span class="slider"></span>
+        </label>
+        <label for="preserveFormatting">Preserve formatting (bold, italics, lists)</label>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>Appearance</h2>
+    
+    <div class="form-group">
+      <label for="buttonPosition">Button Position</label>
+      <select id="buttonPosition">
+        <option value="toolbar">In toolbar (default)</option>
+        <option value="bottom">Bottom of compose window</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input type="checkbox" id="showNotifications">
+          <span class="slider"></span>
+        </label>
+        <label for="showNotifications">Show success/error notifications</label>
+      </div>
+    </div>
   </div>
   
   <button id="saveButton">Save Settings</button>
-  
   <div id="statusMessage" class="status-message"></div>
   
   <script src="options.js"></script>
