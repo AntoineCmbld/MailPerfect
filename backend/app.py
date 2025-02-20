@@ -35,7 +35,7 @@ def improve_email():
         'professional': """You are a professional business writing expert. Transform 
                         this email into a clear, concise, and highly professional message.
                         Use appropriate business language, ensure perfect grammar, and 
-                        optimize structure for maximum impact.""",
+                        optimize structure for maximum impact. Do not press.""",
         
         'casual': """You are a friendly writing assistant. Make this email warm and 
                   conversational while keeping it professional. Improve clarity and 
