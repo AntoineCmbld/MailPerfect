@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gmail Email Improver Settings</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #202124;
+    }
+    
+    h1 {
+      color: #1a73e8;
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    input[type="text"], select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+    
+    button {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #0d62c7;
+    }
+    
+    .status-message {
+      margin-top: 16px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .status-message.success {
+      background-color: #e6f4ea;
+      color: #0f9d58;
+      display: block;
+    }
+    
+    .status-message.error {
+      background-color: #fce8e6;
+      color: #d93025;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gmail Email Improver Settings</h1>
+  
+  <div class="form-group">
+    <label for="apiKey">API Key</label>
+    <input type="text" id="apiKey" placeholder="Enter your API key">
+    <small>Get your API key from your OpenAI account.</small>
+  </div>
+  
+  <div class="form-group">
+    <label for="improvementLevel">Improvement Style</label>
+    <select id="improvementLevel">
+      <option value="standard">Standard</option>
+      <option value="professional">Professional</option>
+      <option value="casual">Casual</option>
+    </select>
+  </div>
+  
+  <button id="saveButton">Save Settings</button>
+  
+  <div id="statusMessage" class="status-message"></div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
