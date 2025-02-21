@@ -70,10 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const improvementLevel = document.getElementById('improvementLevel').value;
     const backendUrl = document.getElementById('backendUrl').value.trim();
     const model = document.getElementById('model').value;
-    const customPrompt = document.getElementById('customPrompt').value.trim();
     const preserveFormatting = document.getElementById('preserveFormatting').checked;
-    const buttonPosition = document.getElementById('buttonPosition').value;
-    const showNotifications = document.getElementById('showNotifications').checked;
     
     if (!apiKey) {
       showStatus('Please enter a valid API key', 'error');
@@ -95,8 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       improvementLevel,
       backendUrl,
       model,
-      preserveFormatting,
-      showNotifications
+      preserveFormatting
     }, () => {
       showStatus('Settings saved successfully!', 'success');
     });
