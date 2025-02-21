@@ -19,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'model', 
     'customPrompt',
     'preserveFormatting',
-    'buttonPosition',
-    'showNotifications'
   ], (result) => {
     // Populate form with saved values
     if (result.apiKey) {
@@ -97,9 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       improvementLevel,
       backendUrl,
       model,
-      customPrompt,
       preserveFormatting,
-      buttonPosition,
       showNotifications
     }, () => {
       showStatus('Settings saved successfully!', 'success');
