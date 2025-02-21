@@ -67,17 +67,6 @@ const checkForComposeWindows = () => {
       }
     }
   });
-  
-  // As fallback, continue checking for compose boxes the old way
-  const composeBoxes = document.querySelectorAll('.Am.Al.editable');
-  composeBoxes.forEach(composeBox => {
-    // Only try bottom placement if button not already present
-    const container = composeBox.closest('.M9') || composeBox.closest('.aaZ');
-    const buttonExistsInRow = container && container.closest('table') && container.closest('table').querySelector('.improve-email-btn');
-    if (container && !buttonExistsInRow) {
-      addImproveButtonToBottom(container, composeBox);
-    }
-  });
 };
 
 // Add button next to Gmail's send button
