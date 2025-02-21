@@ -150,7 +150,8 @@ const improveEmail = async (composeBox) => {
         improvementLevel: settings.improvementLevel,
         model: settings.model,
         customPrompt: settings.customPrompt,
-        preserveFormatting: settings.preserveFormatting
+        preserveFormatting: settings.preserveFormatting,
+        language: languageOverride
       })
     });
     
