@@ -1,16 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Show/hide custom prompt based on selection
-  const improvementLevelSelect = document.getElementById('improvementLevel');
-  const customPromptContainer = document.getElementById('customPromptContainer');
-  
-  improvementLevelSelect.addEventListener('change', () => {
-    if (improvementLevelSelect.value === 'custom') {
-      customPromptContainer.style.display = 'block';
-    } else {
-      customPromptContainer.style.display = 'none';
-    }
-  });
-  
+ 
   // Load saved settings
   chrome.storage.sync.get([
     'apiKey', 
