@@ -112,10 +112,8 @@ const addImproveButtonToBottom = (container, composeBox) => {
   composeBox.parentNode.insertBefore(bottomContainer, composeBox.nextSibling);
 };
 
-
-
-// Function to improve the email content
-const improveEmail = async (composeBox) => {
+// Function to improve the email content - updated to accept language parameter
+const improveEmail = async (composeBox, languageOverride = 'auto') => {
   // Check for API key
   if (!settings.apiKey) {
     showNotification('API key not configured. Please set up in extension options.', 'error');
@@ -165,16 +163,12 @@ const improveEmail = async (composeBox) => {
     composeBox.innerHTML = improvedEmail.text;
     
     // Show success notification
-    if (settings.showNotifications) {
-      showNotification('Email improved successfully!', 'success');
-    }
+    showNotification('Email improved successfully!', 'success');
     
   } catch (error) {
     // Restore original content and show error
     composeBox.innerHTML = originalHTML;
-    if (settings.showNotifications) {
-      showNotification(`Error: ${error.message}`, 'error');
-    }
+    showNotification(`Error: ${error.message}`, 'error');
   }
 };
 
