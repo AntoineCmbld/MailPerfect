@@ -45,12 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (result.buttonPosition) {
       document.getElementById('buttonPosition').value = result.buttonPosition;
     }
-    
-    if (result.showNotifications !== undefined) {
-      document.getElementById('showNotifications').checked = result.showNotifications;
-    } else {
-      document.getElementById('showNotifications').checked = true; // Default to true
-    }
   });
   
   // Save settings
