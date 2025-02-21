@@ -168,13 +168,7 @@
     <div class="form-group">
       <label for="apiKey">OpenAI API Key</label>
       <input type="text" id="apiKey" placeholder="Enter your OpenAI API key">
-      <p class="help-text">Your API key is stored locally and only sent directly to OpenAI</p>
-    </div>
-    
-    <div class="form-group">
-      <label for="backendUrl">Backend URL</label>
-      <input type="url" id="backendUrl" placeholder="http://localhost:5000/improve-email">
-      <p class="help-text">URL of your local or remote backend service</p>
+      <p class="help-text">Your API key is stored locally and sent directly to OpenAI</p>
     </div>
     
     <div class="form-group">
@@ -182,6 +176,7 @@
       <select id="model">
         <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster)</option>
         <option value="gpt-4">GPT-4 (Higher Quality)</option>
+        <option value="gpt-4-turbo">GPT-4 Turbo (Fast + High Quality)</option>
       </select>
     </div>
   </div>
@@ -195,7 +190,14 @@
         <option value="standard">Standard - Balanced improvements</option>
         <option value="professional">Professional - Business-appropriate formatting</option>
         <option value="casual">Casual - Friendly and conversational</option>
+        <option value="custom">Custom - Use custom prompt</option>
       </select>
+    </div>
+    
+    <div id="customPromptContainer" class="form-group" style="display: none;">
+      <label for="customPrompt">Custom Prompt</label>
+      <textarea id="customPrompt" placeholder="Enter your custom instructions for improving emails..."></textarea>
+      <p class="help-text">Define how the AI should improve your emails. Be specific about tone, style, and formatting.</p>
     </div>
     
     <div class="form-group">
@@ -205,6 +207,16 @@
           <span class="slider"></span>
         </label>
         <label for="preserveFormatting">Preserve formatting (bold, italics, lists)</label>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input type="checkbox" id="showNotifications" checked>
+          <span class="slider"></span>
+        </label>
+        <label for="showNotifications">Show notifications</label>
       </div>
     </div>
   </div>

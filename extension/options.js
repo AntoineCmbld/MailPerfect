@@ -4,10 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.sync.get([
     'apiKey', 
     'improvementLevel', 
-    'backendUrl', 
     'model', 
     'customPrompt',
     'preserveFormatting',
+    'buttonPosition',
+    'showNotifications'
   ], (result) => {
     // Populate form with saved values
     if (result.apiKey) {
@@ -17,22 +18,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (result.improvementLevel) {
       document.getElementById('improvementLevel').value = result.improvementLevel;
       
-      if (result.improvementLevel === 'custom') {
-        customPromptContainer.style.display = 'block';
+      // If there's a custom prompt option in your UI
+      if (result.improvementLevel === 'custom' && document.getElementById('customPrompt')) {
+        document.getElementById('customPromptContainer').style.display = 'block';
       }
-    }
-    
-    if (result.backendUrl) {
-      document.getElementById('backendUrl').value = result.backendUrl;
-    } else {
-      document.getElementById('backendUrl').value = 'http://localhost:5000/improve-email';
     }
     
     if (result.model) {
       document.getElementById('model').value = result.model;
     }
     
-    if (result.customPrompt) {
+    if (result.customPrompt && document.getElementById('customPrompt')) {
       document.getElementById('customPrompt').value = result.customPrompt;
     }
     
@@ -42,8 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('preserveFormatting').checked = true; // Default to true
     }
     
-    if (result.buttonPosition) {
+    if (result.buttonPosition && document.getElementById('buttonPosition')) {
       document.getElementById('buttonPosition').value = result.buttonPosition;
+    }
+    
+    if (result.showNotifications !== undefined && document.getElementById('showNotifications')) {
+      document.getElementById('showNotifications').checked = result.showNotifications;
+    } else if (document.getElementById('showNotifications')) {
+      document.getElementById('showNotifications').checked = true; // Default to true
     }
   });
   
@@ -51,35 +53,54 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('saveButton').addEventListener('click', () => {
     const apiKey = document.getElementById('apiKey').value.trim();
     const improvementLevel = document.getElementById('improvementLevel').value;
-    const backendUrl = document.getElementById('backendUrl').value.trim();
     const model = document.getElementById('model').value;
     const preserveFormatting = document.getElementById('preserveFormatting').checked;
+    
+    // Optional UI elements - check if they exist before accessing
+    const customPrompt = document.getElementById('customPrompt')?.value?.trim();
+    const buttonPosition = document.getElementById('buttonPosition')?.value;
+    const showNotifications = document.getElementById('showNotifications')?.checked;
     
     if (!apiKey) {
       showStatus('Please enter a valid API key', 'error');
       return;
     }
     
-    if (!backendUrl) {
-      showStatus('Please enter a valid backend URL', 'error');
-      return;
-    }
-    
-    if (improvementLevel === 'custom' && !customPrompt) {
+    if (improvementLevel === 'custom' && !customPrompt && document.getElementById('customPrompt')) {
       showStatus('Please enter a custom prompt or select a different improvement style', 'error');
       return;
     }
     
-    chrome.storage.sync.set({
+    const settings = {
       apiKey,
       improvementLevel,
-      backendUrl,
       model,
       preserveFormatting
-    }, () => {
+    };
+    
+    // Add optional settings if they exist in the UI
+    if (customPrompt !== undefined) settings.customPrompt = customPrompt;
+    if (buttonPosition !== undefined) settings.buttonPosition = buttonPosition;
+    if (showNotifications !== undefined) settings.showNotifications = showNotifications;
+    
+    chrome.storage.sync.set(settings, () => {
       showStatus('Settings saved successfully!', 'success');
     });
   });
+  
+  // Add event listener for improvement level change if custom prompt UI exists
+  const improvementLevelSelect = document.getElementById('improvementLevel');
+  const customPromptContainer = document.getElementById('customPromptContainer');
+  
+  if (improvementLevelSelect && customPromptContainer) {
+    improvementLevelSelect.addEventListener('change', () => {
+      if (improvementLevelSelect.value === 'custom') {
+        customPromptContainer.style.display = 'block';
+      } else {
+        customPromptContainer.style.display = 'none';
+      }
+    });
+  }
 });
 
 function showStatus(message, type) {

@@ -1,8 +1,7 @@
-// content.js
+// content.js - Standalone version (no backend required)
 let settings = {
   apiKey: '',
   improvementLevel: 'standard',
-  backendUrl: 'http://localhost:5000/improve-email',
   model: 'gpt-3.5-turbo',
   customPrompt: '',
   preserveFormatting: true,
@@ -15,7 +14,6 @@ function loadSettings() {
   chrome.storage.sync.get([
     'apiKey',
     'improvementLevel',
-    'backendUrl',
     'model',
     'customPrompt',
     'preserveFormatting',
@@ -28,11 +26,6 @@ function loadSettings() {
         settings[key] = result[key];
       }
     });
-    
-    // Set default backend URL if not set
-    if (!settings.backendUrl) {
-      settings.backendUrl = 'http://localhost:5000/improve-email';
-    }
   });
 }
 
@@ -131,7 +124,34 @@ const addButtonNextToSend = (sendButtonTd, composeArea) => {
   sendButtonTd.insertBefore(buttonContainer, sendButtonTd.firstChild);
 };
 
-// Function to improve the email content - updated to accept language parameter
+// Simple language detection function
+const detectLanguage = (text) => {
+  // This is a very basic language detection - in production you might want to use a library
+  // or create a more robust implementation
+  const langPatterns = {
+    en: /\b(the|and|is|in|to|have|for|this|with|you|that|on|are|was|not|your)\b/gi,
+    fr: /\b(le|la|les|et|est|dans|pour|ce|avec|vous|que|sur|sont|était|votre)\b/gi,
+    es: /\b(el|la|los|y|es|en|para|este|con|ustedes|que|sobre|son|era|tu)\b/gi,
+    de: /\b(der|die|das|und|ist|in|für|diese|mit|Sie|dass|auf|sind|war|deine)\b/gi,
+    it: /\b(il|la|i|e|è|in|per|questo|con|voi|che|su|sono|era|tuo)\b/gi,
+    pt: /\b(o|a|os|e|é|em|para|este|com|você|que|sobre|são|foi|seu)\b/gi,
+  };
+
+  let maxMatches = 0;
+  let detectedLang = 'en';  // Default to English
+
+  Object.entries(langPatterns).forEach(([lang, pattern]) => {
+    const matches = (text.match(pattern) || []).length;
+    if (matches > maxMatches) {
+      maxMatches = matches;
+      detectedLang = lang;
+    }
+  });
+
+  return detectedLang;
+};
+
+// Function to improve the email content directly using OpenAI API
 const improveEmail = async (composeBox, languageOverride = 'auto') => {
   // Check for API key
   if (!settings.apiKey) {
@@ -155,31 +175,78 @@ const improveEmail = async (composeBox, languageOverride = 'auto') => {
       emailText = composeBox.innerText;
     }
     
-    // Send to backend
-    const response = await fetch(settings.backendUrl, {
+    // Detect language if set to auto
+    let detectedLanguage = languageOverride;
+    if (languageOverride === 'auto') {
+      detectedLanguage = detectLanguage(composeBox.innerText);
+    }
+    
+    // Select system prompt based on improvement level
+    const systemPrompts = {
+      'standard': `You are an email editor. Improve this email by fixing grammar, 
+                  enhancing clarity, and ensuring a professional tone. 
+                  IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.
+                  Maintain the original meaning, intent and style of the message.`,
+
+      'professional': `You are an executive communication specialist. Enhance this email to be clear, concise, and impactful for a business environment. 
+                  
+                  Make these specific improvements:
+                  1. Use professional vocabulary and tone appropriate for business correspondence
+                  2. Structure content logically with clear paragraphs and transitions
+                  3. Focus on clarity and brevity - remove unnecessary words and redundancies
+                  4. Ensure appropriate level of formality based on context
+                  5. Maintain proper business etiquette and courteous language
+                  6. Keep actionable items and requests clear and specific
+                  7. Fix any grammatical or spelling errors
+                  
+                  IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.
+                  Maintain the original intent, key information, and any specific terminology used.`,
+      
+      'casual': `You are a friendly writing assistant. Make this email warm and 
+              conversational while keeping it professional. Improve clarity and 
+              fix any errors while maintaining a personable tone.
+              IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.`
+    };
+    
+    const systemPrompt = systemPrompts[settings.improvementLevel] || systemPrompts['standard'];
+    const customPrompt = settings.customPrompt ? 
+      `${settings.customPrompt} IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.` : 
+      null;
+    
+    // Prepare the API request
+    const apiUrl = 'https://api.openai.com/v1/chat/completions';
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${settings.apiKey}`
+    };
+    
+    const body = JSON.stringify({
+      model: settings.model,
+      messages: [
+        {"role": "system", "content": customPrompt || systemPrompt},
+        {"role": "user", "content": `Please improve this email:\n\n${emailText}`}
+      ],
+      temperature: 0.7,
+      max_tokens: 1500
+    });
+    
+    // Make the API request
+    const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${settings.apiKey}`
-      },
-      body: JSON.stringify({
-        email: emailText,
-        improvementLevel: settings.improvementLevel,
-        model: settings.model,
-        customPrompt: settings.customPrompt,
-        preserveFormatting: settings.preserveFormatting,
-        language: languageOverride
-      })
+      headers: headers,
+      body: body
     });
     
     if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(`OpenAI API Error: ${errorData.error?.message || response.statusText}`);
     }
     
-    const improvedEmail = await response.json();
+    const result = await response.json();
+    const improvedText = result.choices[0].message.content;
     
     // Replace email content with improved version
-    composeBox.innerHTML = improvedEmail.text;
+    composeBox.innerHTML = improvedText;
     
     // Show success notification
     showNotification('Email improved successfully!', 'success');
@@ -188,6 +255,7 @@ const improveEmail = async (composeBox, languageOverride = 'auto') => {
     // Restore original content and show error
     composeBox.innerHTML = originalHTML;
     showNotification(`Error: ${error.message}`, 'error');
+    console.error('Email improvement error:', error);
   }
 };
 
