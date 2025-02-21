@@ -44,43 +44,55 @@ chrome.storage.onChanged.addListener(() => {
   loadSettings();
 });
 
-// Continuously check for Gmail compose windows
+// Try a different approach to find Gmail's toolbar
 const checkForComposeWindows = () => {
-  // Look for compose windows
-  const composeBoxes = document.querySelectorAll('.Am.Al.editable');
+  // Specifically look for Gmail's compose window send button area
+  const sendButtonContainers = document.querySelectorAll('tr.btC');
   
-  composeBoxes.forEach(composeBox => {
-    // Find the toolbar - this is where we'll add our button
-    const toolbar = composeBox.closest('.aan').querySelector('.aal');
-    
-    // Only add button if it doesn't already exist for this toolbar
+  sendButtonContainers.forEach(container => {
+    // Check if our button is already added
     const buttonClass = 'improve-email-btn';
-    if (toolbar && !toolbar.querySelector(`.${buttonClass}`)) {
-      addImproveButtonToToolbar(toolbar, composeBox);
-    }
-    
-    // Fallback to bottom placement if we can't find the toolbar
-    if (!toolbar) {
-      const container = composeBox.closest('.M9') || composeBox.closest('.aaZ');
-      if (container && !container.querySelector(`.${buttonClass}`)) {
-        addImproveButtonToBottom(container, composeBox);
+    if (!container.querySelector(`.${buttonClass}`)) {
+      // Find the actual send button's parent TD
+      const sendButtonTd = container.querySelector('td.gU.Up');
+      
+      if (sendButtonTd) {
+        // Find the related compose area 
+        const composeArea = container.closest('.M9').querySelector('.Am.Al.editable');
+        
+        if (composeArea) {
+          // Add our button next to the send button
+          addButtonNextToSend(sendButtonTd, composeArea);
+        }
       }
+    }
+  });
+  
+  // As fallback, continue checking for compose boxes the old way
+  const composeBoxes = document.querySelectorAll('.Am.Al.editable');
+  composeBoxes.forEach(composeBox => {
+    // Only try bottom placement if button not already present
+    const container = composeBox.closest('.M9') || composeBox.closest('.aaZ');
+    const buttonExistsInRow = container && container.closest('table').querySelector('.improve-email-btn');
+    if (container && !buttonExistsInRow) {
+      addImproveButtonToBottom(container, composeBox);
     }
   });
 };
 
-// Add the Improve Mail button to the Gmail toolbar
-const addImproveButtonToToolbar = (toolbar, composeBox) => {
-  // Create a container div for our button and dropdown
+// Add button next to Gmail's send button
+const addButtonNextToSend = (sendButtonTd, composeArea) => {
+  // Create our button container
   const buttonContainer = document.createElement('div');
-  buttonContainer.className = 'improve-email-toolbar-container';
+  buttonContainer.className = 'improve-email-send-row-container';
   buttonContainer.style.display = 'inline-block';
-  buttonContainer.style.marginRight = '12px';
+  buttonContainer.style.marginRight = '8px';
   
-  // Create language dropdown
+  // Create language dropdown with minimal styling to match Gmail
   const langSelect = document.createElement('select');
   langSelect.className = 'improve-email-lang-select';
   langSelect.style.marginRight = '8px';
+  langSelect.style.height = '36px';
   langSelect.style.verticalAlign = 'middle';
   
   // Add language options
@@ -106,77 +118,28 @@ const addImproveButtonToToolbar = (toolbar, composeBox) => {
     langSelect.appendChild(option);
   });
   
-  // Create the button element
+  // Create button matching Gmail's send button styling
   const button = document.createElement('button');
-  button.className = 'improve-email-btn';
+  button.className = 'improve-email-btn T-I J-J5-Ji aoO T-I-atl';
   button.innerHTML = '✨ Improve';
   button.title = 'AI-powered email improvement';
-  button.style.verticalAlign = 'middle';
+  button.style.marginLeft = '0';
   
   // Add click event listener
-  button.addEventListener('click', () => {
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     const selectedLang = langSelect.value;
-    improveEmail(composeBox, selectedLang);
+    improveEmail(composeArea, selectedLang);
+    return false;
   });
   
   // Add elements to container
   buttonContainer.appendChild(langSelect);
   buttonContainer.appendChild(button);
   
-  // Insert at the beginning of the toolbar
-  toolbar.prepend(buttonContainer);
-};
-
-// Add the Improve Mail button to the bottom of the compose window (fallback)
-const addImproveButtonToBottom = (container, composeBox) => {
-  const bottomContainer = document.createElement('div');
-  bottomContainer.className = 'improve-email-bottom-container';
-  
-  // Add language dropdown
-  const langSelect = document.createElement('select');
-  langSelect.className = 'improve-email-lang-select';
-  
-  // Add language options
-  const languages = [
-    { code: 'auto', name: 'Auto Detect' },
-    { code: 'en', name: 'English' },
-    { code: 'fr', name: 'Français' },
-    { code: 'es', name: 'Español' },
-    { code: 'de', name: 'Deutsch' },
-    { code: 'it', name: 'Italiano' },
-    { code: 'pt', name: 'Português' },
-    { code: 'nl', name: 'Nederlands' },
-    { code: 'ru', name: 'Русский' },
-    { code: 'zh', name: 'Chinese' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'ko', name: 'Korean' }
-  ];
-  
-  languages.forEach(lang => {
-    const option = document.createElement('option');
-    option.value = lang.code;
-    option.textContent = lang.name;
-    langSelect.appendChild(option);
-  });
-  
-  // Create improve button
-  const button = document.createElement('button');
-  button.className = 'improve-email-btn improve-email-btn-bottom';
-  button.innerHTML = 'Improve Mail with AI';
-  button.title = 'AI-powered email improvement';
-  
-  // Modify the click event to include language selection
-  button.addEventListener('click', () => {
-    const selectedLang = langSelect.value;
-    improveEmail(composeBox, selectedLang);
-  });
-  
-  // Add elements to container
-  bottomContainer.appendChild(langSelect);
-  bottomContainer.appendChild(button);
-  
-  // Add after the compose box
-  composeBox.parentNode.insertBefore(bottomContainer, composeBox.nextSibling);
+  // Insert our button container before the send button in the row
+  sendButtonTd.insertBefore(buttonContainer, sendButtonTd.firstChild);
 };
 
 // Function to improve the email content - updated to accept language parameter
