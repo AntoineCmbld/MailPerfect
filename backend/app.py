@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import openai
 import os
+from langdetect import detect, LangDetectException
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes - important for Chrome extension access
@@ -22,6 +23,19 @@ def improve_email():
     
     email_text = data['email']
     improvement_level = data.get('improvementLevel', 'standard')
+    language_choice = data.get('language', 'auto')
+
+     # Detect or use specified language
+    try:
+        if language_choice == 'auto':
+            detected_language = detect(email_text)
+        else:
+            detected_language = language_choice
+            
+        language_instruction = f"This email is in {detected_language}. Your response MUST be in {detected_language} only."
+    except LangDetectException:
+        # If language detection fails, use a more generic instruction
+        language_instruction = "Maintain the exact same language as the original email."
     
     # Configure OpenAI with the provided API key
     openai.api_key = api_key
@@ -55,14 +69,15 @@ def improve_email():
                 your improvements must be in French, if it's in English, respond in English, etc."""
     }
     
-    system_prompt = system_prompts.get(improvement_level, system_prompts['standard'])
+    base_prompt = system_prompts.get(improvement_level, system_prompts['standard'])
+    complete_prompt = f"{base_prompt} {language_instruction}"
     
     try:
         # Call OpenAI API
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",  # You can use gpt-4 for better results if available
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": complete_prompt},
                 {"role": "user", "content": f"Please improve this email:\n\n{email_text}"}
             ],
             temperature=0.7,

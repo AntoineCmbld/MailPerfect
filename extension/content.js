@@ -55,36 +55,9 @@ const checkForComposeWindows = () => {
     
     const buttonClass = 'improve-email-btn';
     if (!container.querySelector(`.${buttonClass}`)) {
-      if (settings.buttonPosition === 'toolbar') {
-        addImproveButtonToToolbar(container, composeBox);
-      } else {
-        addImproveButtonToBottom(container, composeBox);
-      }
+      addImproveButtonToBottom(container, composeBox);
     }
   });
-};
-
-// Add the Improve Mail button to Gmail's compose toolbar
-const addImproveButtonToToolbar = (toolbar, composeBox) => {
-  const buttonContainer = document.createElement('div');
-  buttonContainer.className = 'improve-email-btn-container';
-  
-  const button = document.createElement('button');
-  button.className = 'improve-email-btn';
-  button.innerHTML = 'Improve Mail';
-  button.title = 'AI-powered email improvement';
-  
-  button.addEventListener('click', () => improveEmail(composeBox));
-  
-  buttonContainer.appendChild(button);
-  
-  // Add to Gmail toolbar
-  const toolbarItems = toolbar.querySelector('.wG.J-Z-I');
-  if (toolbarItems) {
-    toolbarItems.appendChild(buttonContainer);
-  } else {
-    toolbar.appendChild(buttonContainer);
-  }
 };
 
 // Add the Improve Mail button to the bottom of the compose window
@@ -92,18 +65,54 @@ const addImproveButtonToBottom = (container, composeBox) => {
   const bottomContainer = document.createElement('div');
   bottomContainer.className = 'improve-email-bottom-container';
   
+  // Add language dropdown
+  const langSelect = document.createElement('select');
+  langSelect.className = 'improve-email-lang-select';
+  
+  // Add language options
+  const languages = [
+    { code: 'auto', name: 'Auto Detect' },
+    { code: 'en', name: 'English' },
+    { code: 'fr', name: 'Français' },
+    { code: 'es', name: 'Español' },
+    { code: 'de', name: 'Deutsch' },
+    { code: 'it', name: 'Italiano' },
+    { code: 'pt', name: 'Português' },
+    { code: 'nl', name: 'Nederlands' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'zh', name: 'Chinese' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'ko', name: 'Korean' }
+  ];
+  
+  languages.forEach(lang => {
+    const option = document.createElement('option');
+    option.value = lang.code;
+    option.textContent = lang.name;
+    langSelect.appendChild(option);
+  });
+  
+  // Create improve button
   const button = document.createElement('button');
   button.className = 'improve-email-btn improve-email-btn-bottom';
   button.innerHTML = 'Improve Mail with AI';
   button.title = 'AI-powered email improvement';
   
-  button.addEventListener('click', () => improveEmail(composeBox));
+  // Modify the click event to include language selection
+  button.addEventListener('click', () => {
+    const selectedLang = langSelect.value;
+    improveEmail(composeBox, selectedLang);
+  });
   
+  // Add elements to container
+  bottomContainer.appendChild(langSelect);
   bottomContainer.appendChild(button);
   
   // Add after the compose box
   composeBox.parentNode.insertBefore(bottomContainer, composeBox.nextSibling);
 };
+
+
 
 // Function to improve the email content
 const improveEmail = async (composeBox) => {

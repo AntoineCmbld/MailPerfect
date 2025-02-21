@@ -9,6 +9,27 @@
     margin-right: 10px;
     transition: background-color 0.2s;
   }
+
+  .improve-email-bottom-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .improve-email-lang-select {
+    margin-right: 10px;
+    padding: 6px 8px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: white;
+    min-width: 120px;
+  }
+  
+  .improve-email-btn-bottom {
+    margin-left: 0;
+  }
   
   .improve-email-btn:hover {
     background-color: #0d62c7;
