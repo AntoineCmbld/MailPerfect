@@ -26,24 +26,6 @@ This Chrome extension adds an "Improve Mail" button to Gmail's compose window, a
    - Enter your OpenAI API key
    - Select your preferred improvement style
 
-### 2. Set up the Backend Service (Optional)
-
-If you want to run your own backend service rather than relying on a third-party:
-
-1. **Install Requirements**
-   ```bash
-   pip install flask flask-cors openai
-   ```
-
-2. **Run the Flask Application**
-   ```bash
-   python app.py
-   ```
-
-3. **Deploy to a Cloud Provider (Optional)**
-   - The app can be deployed to services like Heroku, Google Cloud Run, or AWS Lambda
-   - Remember to update the `API_ENDPOINT` in `content.js` to point to your deployed service
-
 ## How to Use
 
 1. Open Gmail in Chrome
@@ -73,7 +55,7 @@ gmail-email-improver/
 
 - **Button not appearing?** Try refreshing Gmail or restarting Chrome
 - **API errors?** Double-check your API key in the extension settings
-- **Slow performance?** Consider switching to a faster OpenAI model in the backend code
+- **Slow performance?** Consider switching to a faster OpenAI model
 
 ## Privacy Note
 
