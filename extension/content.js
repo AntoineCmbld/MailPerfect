@@ -9,6 +9,10 @@ let settings = {
   showNotifications: true
 };
 
+// Import language detection library (franc)
+// Note: This would need to be properly bundled in your extension build process
+import franc from 'franc';
+
 // Load settings
 function loadSettings() {
   chrome.storage.sync.get([
@@ -80,17 +84,17 @@ const addButtonNextToSend = (sendButtonTd, composeArea) => {
   // Add language options
   const languages = [
     { code: 'auto', name: 'Auto Detect' },
-    { code: 'en', name: 'English' },
-    { code: 'fr', name: 'Français' },
-    { code: 'es', name: 'Español' },
-    { code: 'de', name: 'Deutsch' },
-    { code: 'it', name: 'Italiano' },
-    { code: 'pt', name: 'Português' },
-    { code: 'nl', name: 'Nederlands' },
-    { code: 'ru', name: 'Русский' },
-    { code: 'zh', name: 'Chinese' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'ko', name: 'Korean' }
+    { code: 'eng', name: 'English' },
+    { code: 'fra', name: 'Français' },
+    { code: 'spa', name: 'Español' },
+    { code: 'deu', name: 'Deutsch' },
+    { code: 'ita', name: 'Italiano' },
+    { code: 'por', name: 'Português' },
+    { code: 'nld', name: 'Nederlands' },
+    { code: 'rus', name: 'Русский' },
+    { code: 'cmn', name: 'Chinese' },
+    { code: 'jpn', name: 'Japanese' },
+    { code: 'kor', name: 'Korean' }
   ];
   
   languages.forEach(lang => {
@@ -124,31 +128,23 @@ const addButtonNextToSend = (sendButtonTd, composeArea) => {
   sendButtonTd.insertBefore(buttonContainer, sendButtonTd.firstChild);
 };
 
-// Simple language detection function
+// Improved language detection using franc library
 const detectLanguage = (text) => {
-  // This is a very basic language detection - in production you might want to use a library
-  // or create a more robust implementation
-  const langPatterns = {
-    en: /\b(the|and|is|in|to|have|for|this|with|you|that|on|are|was|not|your)\b/gi,
-    fr: /\b(le|la|les|et|est|dans|pour|ce|avec|vous|que|sur|sont|était|votre)\b/gi,
-    es: /\b(el|la|los|y|es|en|para|este|con|ustedes|que|sobre|son|era|tu)\b/gi,
-    de: /\b(der|die|das|und|ist|in|für|diese|mit|Sie|dass|auf|sind|war|deine)\b/gi,
-    it: /\b(il|la|i|e|è|in|per|questo|con|voi|che|su|sono|era|tuo)\b/gi,
-    pt: /\b(o|a|os|e|é|em|para|este|com|você|que|sobre|são|foi|seu)\b/gi,
-  };
-
-  let maxMatches = 0;
-  let detectedLang = 'en';  // Default to English
-
-  Object.entries(langPatterns).forEach(([lang, pattern]) => {
-    const matches = (text.match(pattern) || []).length;
-    if (matches > maxMatches) {
-      maxMatches = matches;
-      detectedLang = lang;
+  try {
+    // Get the detected language code from franc
+    const langCode = franc(text);
+    
+    // If undefined or unreliable detection, default to English
+    if (langCode === 'und' || text.length < 10) {
+      return 'eng';
     }
-  });
-
-  return detectedLang;
+    
+    // Return the detected language code (will be used for OpenAI prompt)
+    return langCode;
+  } catch (error) {
+    console.error('Language detection error:', error);
+    return 'eng'; // Default to English on error
+  }
 };
 
 // Function to improve the email content directly using OpenAI API
@@ -181,11 +177,28 @@ const improveEmail = async (composeBox, languageOverride = 'auto') => {
       detectedLanguage = detectLanguage(composeBox.innerText);
     }
     
+    // Map language codes to human-readable names for the prompt
+    const languageNames = {
+      'eng': 'English',
+      'fra': 'French',
+      'spa': 'Spanish',
+      'deu': 'German',
+      'ita': 'Italian',
+      'por': 'Portuguese',
+      'nld': 'Dutch',
+      'rus': 'Russian',
+      'cmn': 'Chinese',
+      'jpn': 'Japanese',
+      'kor': 'Korean'
+    };
+    
+    const languageName = languageNames[detectedLanguage] || 'English';
+    
     // Select system prompt based on improvement level
     const systemPrompts = {
       'standard': `You are an email editor. Improve this email by fixing grammar, 
                   enhancing clarity, and ensuring a professional tone. 
-                  IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.
+                  IMPORTANT: This email is in ${languageName}. Your response MUST be in ${languageName} only.
                   Maintain the original meaning, intent and style of the message.`,
 
       'professional': `You are an executive communication specialist. Enhance this email to be clear, concise, and impactful for a business environment. 
@@ -199,18 +212,18 @@ const improveEmail = async (composeBox, languageOverride = 'auto') => {
                   6. Keep actionable items and requests clear and specific
                   7. Fix any grammatical or spelling errors
                   
-                  IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.
+                  IMPORTANT: This email is in ${languageName}. Your response MUST be in ${languageName} only.
                   Maintain the original intent, key information, and any specific terminology used.`,
       
       'casual': `You are a friendly writing assistant. Make this email warm and 
               conversational while keeping it professional. Improve clarity and 
               fix any errors while maintaining a personable tone.
-              IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.`
+              IMPORTANT: This email is in ${languageName}. Your response MUST be in ${languageName} only.`
     };
     
     const systemPrompt = systemPrompts[settings.improvementLevel] || systemPrompts['standard'];
     const customPrompt = settings.customPrompt ? 
-      `${settings.customPrompt} IMPORTANT: This email is in ${detectedLanguage}. Your response MUST be in ${detectedLanguage} only.` : 
+      `${settings.customPrompt} IMPORTANT: This email is in ${languageName}. Your response MUST be in ${languageName} only.` : 
       null;
     
     // Prepare the API request
